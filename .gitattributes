@@ -1,0 +1,11 @@
+* text=auto eol=lf
+*.aab binary
+*.apk binary
+*.ipa binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.xcarchive binary
+*.keystore binary
+docs/** linguist-documentation
+.github/** linguist-documentation

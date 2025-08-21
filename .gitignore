@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+yarn.lock
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+build/
+pubspec.lock
+
+# iOS
+**/Pods/
+**/DerivedData/
+*.xcworkspace
+*.xcuserdatad
+*.xcuserdata
+
+# Android
+**/.gradle/
+**/build/
+local.properties
+*.keystore
+
+# IDEs
+.idea/
+.vscode/
