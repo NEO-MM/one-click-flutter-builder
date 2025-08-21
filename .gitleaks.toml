@@ -1,0 +1,6 @@
+title = "Custom allowlist for gitleaks"
+
+[[rules]]
+description = "Ignore dummy/test values"
+regex = '''(?i)(testpassword|dummyapikey|PLACEHOLDER)'''
+paths = ["README.md", "tools/ios/fastlane/Fastfile"]
