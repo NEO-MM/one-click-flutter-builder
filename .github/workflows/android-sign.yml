@@ -1,0 +1,47 @@
+name: android-sign
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["android-build"]
+    types: [ "completed" ]
+jobs:
+  sign-apk:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+      - name: Download artifacts from previous run
+        uses: actions/download-artifact@v4
+        with:
+          name: android-artifacts
+          path: artifacts_in
+      - name: Copy BuildReport.json if present
+        run: |
+          mkdir -p build_reports
+          if [ -f artifacts_in/BuildReport.json ]; then cp artifacts_in/BuildReport.json build_reports/; fi
+      - name: Export secrets to env (if present)
+        run: |
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then echo "ANDROID_KEYSTORE_BASE64=${{ secrets.ANDROID_KEYSTORE_BASE64 }}" >> $GITHUB_ENV; fi
+          if [ -n "${{ secrets.ANDROID_KEY_ALIAS }}" ]; then echo "ANDROID_KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}" >> $GITHUB_ENV; fi
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" ]; then echo "ANDROID_KEYSTORE_PASSWORD=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> $GITHUB_ENV; fi
+          if [ -n "${{ secrets.ANDROID_KEY_PASSWORD }}" ]; then echo "ANDROID_KEY_PASSWORD=${{ secrets.ANDROID_KEY_PASSWORD }}" >> $GITHUB_ENV; fi
+      - name: Sign APK (skips if secrets missing)
+        run: tools/bin/android-sign.sh
+      - name: Upload signed artifact and report
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-signed
+          path: |
+            **/*-signed.apk
+            build_reports/BuildReport.signed.json
